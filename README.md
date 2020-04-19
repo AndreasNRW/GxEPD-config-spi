@@ -11,10 +11,11 @@ A simple E-Paper display library with common base class and separate IO class fo
 Sometimes like in case of using Waveshare's [E-Paper ESP32 Driver board](https://www.waveshare.com/wiki/E-Paper_ESP32_Driver_Board) you need to use another SPI pins instead of the default ESP32 SPI. To do this simply add this 3 defines using build_flags or #define if you use Arduino before adding the gxEPD class:
 
     build_flags =
-      -DCLK_GPIO=18
-      -MOSI_GPIO=23
-      -CS_GPIO=32
-  
+      -DCLK_GPIO=13
+      -DMOSI_GPIO=14
+      -DCS_GPIO=15
+
+Doing that in the build_flags SPI communication will use 13 as CLOCK, 14 as MOSI and 15 for Chip Select just in Waveshare EPD Driver board documentation. 
 Please note that in EPD documentation MOSI is usually referred [as DIN (page 2)](https://www.waveshare.com/w/upload/4/4a/E-Paper_ESP32_Driver_Board_user_manual_en.pdf)
 
 ### important note :
