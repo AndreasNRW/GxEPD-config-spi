@@ -51,7 +51,11 @@ void GxIO_SPI::init()
     pinMode(_bl, OUTPUT);
   }
   reset();
-  _spi.begin();
+  // Uses default Espressif SPI
+  //_spi.begin();
+  // Configure this using Platformio build_flags = 
+  //                                      -D*_GPIO=PIN
+  SPI.begin(CLK_GPIO,MISO,MOSI_GPIO,CS_GPIO);
 }
 
 void GxIO_SPI::setFrequency(uint32_t freq)
