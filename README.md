@@ -6,6 +6,17 @@ A simple E-Paper display library with common base class and separate IO class fo
 
 - GxEPD2 is better suited for new users or new projects!
 
+## About this fork
+
+Sometimes like in case of using Waveshare's [E-Paper ESP32 Driver board](https://www.waveshare.com/wiki/E-Paper_ESP32_Driver_Board) you need to use another SPI pins instead of the default ESP32 SPI. To do this simply add this 3 defines using build_flags or #define if you use Arduino before adding the gxEPD class:
+
+    build_flags =
+      -DCLK_GPIO=18
+      -MOSI_GPIO=23
+      -CS_GPIO=32
+  
+Please note that in EPD documentation MOSI is usually referred [as DIN (page 2)](https://www.waveshare.com/w/upload/4/4a/E-Paper_ESP32_Driver_Board_user_manual_en.pdf)
+
 ### important note :
 - these displays are for 3.3V supply and 3.3V data lines
 - never connect data lines directly to 5V Arduino data pins, use e.g. 4k7/10k resistor divider
