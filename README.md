@@ -10,8 +10,8 @@ A simple E-Paper display library with common base class and separate IO class fo
 
 This fork intention is to accomplish two things
 
-    1. Make an ESP-IDF version of this library - branch: master
-    2. Add a way to configure SPI pins in platformio.ini in case you want or are forced to use another GPIOs for SPI - Arduino Framework - branch: [ini_spi](https://github.com/martinberlin/GxEPD-config-spi/tree/ini_spi)
+1. Make an ESP-IDF version of this library - branch: master
+2. Add a way to configure SPI pins in platformio.ini in case you want or are forced to use another GPIOs for SPI - Arduino Framework - branch: [ini_spi](https://github.com/martinberlin/GxEPD-config-spi/tree/ini_spi)
 
 Sometimes like in case of using Waveshare's [E-Paper ESP32 Driver board](https://www.waveshare.com/wiki/E-Paper_ESP32_Driver_Board) you need to use another SPI pins instead of the default ESP32 SPI. To do this simply add this 3 defines using build_flags or #define if you use Arduino before adding the gxEPD class:
 
