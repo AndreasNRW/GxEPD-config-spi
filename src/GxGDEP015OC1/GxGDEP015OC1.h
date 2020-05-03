@@ -14,7 +14,6 @@
 #ifndef _GxGDEP015OC1_H_
 #define _GxGDEP015OC1_H_
 
-#include <Arduino.h>
 #include "../GxEPD.h"
 
 // the physical number of pixels (for controller parameter)
