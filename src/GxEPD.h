@@ -13,8 +13,10 @@
 #ifndef _GxEPD_H_
 #define _GxEPD_H_
 
-//#include <Arduino.h>
-//#include <SPI.h>  Todo recode this part to use ESP-IDF spi
+#include <stdint.h>
+#include <cstddef> //NULL not defined
+// Todo recode this part to use ESP-IDF spi
+#include <SPI.h>  
 #include "GxIO/GxIO.h"
 #include <Adafruit_GFX.h>
 #include "GxFont_GFX.h"
