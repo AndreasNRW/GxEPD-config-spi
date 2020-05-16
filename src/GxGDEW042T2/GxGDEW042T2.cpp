@@ -12,16 +12,14 @@
 // Library: https://github.com/ZinggJM/GxEPD
 
 #include "GxGDEW042T2.h"
-
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "driver/gpio.h"
+#include "freertos/task.h"
 //#define DISABLE_DIAGNOSTIC_OUTPUT
 
 #define GxGDEW042T2_BUSY_TIMEOUT 10000000
 
-#if defined(ESP8266) || defined(ESP32)
-#include <pgmspace.h>
-#else
-#include <avr/pgmspace.h>
-#endif
 
 GxGDEW042T2::GxGDEW042T2(GxIO& io, int8_t rst, int8_t busy)
   : GxEPD(GxGDEW042T2_WIDTH, GxGDEW042T2_HEIGHT), IO(io),
@@ -73,17 +71,18 @@ void GxGDEW042T2::init(uint32_t serial_diag_bitrate)
 {
   if (serial_diag_bitrate > 0)
   {
-    Serial.begin(serial_diag_bitrate);
+    //printf(serial_diag_bitrate);
     _diag_enabled = true;
   }
   IO.init();
   IO.setFrequency(4000000); // 4MHz
   if (_rst >= 0)
   {
-    digitalWrite(_rst, HIGH);
-    pinMode(_rst, OUTPUT);
+    gpio_pad_select_gpio((gpio_num_t)_rst);
+    gpio_set_level((gpio_num_t)_rst, 0);
+    gpio_set_direction((gpio_num_t)_rst, GPIO_MODE_OUTPUT);
   }
-  pinMode(_busy, INPUT);
+  gpio_set_direction((gpio_num_t)_busy, GPIO_MODE_INPUT);
   fillScreen(GxEPD_WHITE);
   _initial = true;
   _current_page = -1;
@@ -384,7 +383,7 @@ void GxGDEW042T2::_writeToWindow(uint16_t xs, uint16_t ys, uint16_t xd, uint16_t
       IO.writeDataTransaction(~data);
     }
   }
-  delay(2);
+  vTaskDelay(2);
   IO.writeCommandTransaction(0x92); // partial out
 }
 
@@ -422,7 +421,7 @@ void GxGDEW042T2::updateToWindow(uint16_t xs, uint16_t ys, uint16_t xd, uint16_t
   _writeToWindow(xs, ys, xd, yd, w, h);
   IO.writeCommandTransaction(0x12);      //display refresh
   _waitWhileBusy("updateToWindow");
-  delay(500); // don't stress this display
+  vTaskDelay(500); // don't stress this display
 }
 
 void GxGDEW042T2::powerDown()
@@ -450,14 +449,14 @@ uint16_t GxGDEW042T2::_setPartialRamArea(uint16_t x, uint16_t y, uint16_t xe, ui
 
 void GxGDEW042T2::_waitWhileBusy(const char* comment)
 {
-  unsigned long start = micros();
+  unsigned long start = esp_timer_get_time();
   while (1)
   { //=0 BUSY
-    if (digitalRead(_busy) == 1) break;
-    delay(1);
-    if (micros() - start > GxGDEW042T2_BUSY_TIMEOUT)
+    if (gpio_get_level((gpio_num_t)_busy) == 1) break;
+    vTaskDelay(1);
+    if (esp_timer_get_time() - start > GxGDEW042T2_BUSY_TIMEOUT)
     {
-      if (_diag_enabled) Serial.println("Busy Timeout!");
+      if (_diag_enabled) printf("Busy Timeout!\n");
       break;
     }
   }
@@ -466,10 +465,10 @@ void GxGDEW042T2::_waitWhileBusy(const char* comment)
 #if !defined(DISABLE_DIAGNOSTIC_OUTPUT)
     if (_diag_enabled)
     {
-      unsigned long elapsed = micros() - start;
-      Serial.print(comment);
-      Serial.print(" : ");
-      Serial.println(elapsed);
+      unsigned long elapsed = esp_timer_get_time() - start;
+      //printf(comment);
+      //printf(" : ");
+      //printf(elapsed);
     }
 #endif
   }
@@ -480,10 +479,10 @@ void GxGDEW042T2::_wakeUp(void)
 {
   if (_rst >= 0)
   {
-    digitalWrite(_rst, 0);
-    delay(10);
-    digitalWrite(_rst, 1);
-    delay(10);
+    gpio_set_level((gpio_num_t)_rst, 0);
+    vTaskDelay(10);
+    gpio_set_level((gpio_num_t)_rst, 1);
+    vTaskDelay(10);
   }
   IO.writeCommandTransaction(0x01); // POWER SETTING
   IO.writeDataTransaction(0x03);   // VDS_EN, VDG_EN internal
@@ -676,7 +675,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(void), uint16_t x, uint
     }
   }
   IO.writeCommandTransaction(0x12); //display refresh
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   // update erase buffer
   for (_current_page = 0; _current_page < GxGDEW042T2_PAGES; _current_page++)
@@ -691,7 +690,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(void), uint16_t x, uint
       _writeToWindow(x, ys, x, yds, w, yde - yds);
     }
   }
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   _current_page = -1;
 }
@@ -720,7 +719,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(uint32_t), uint16_t x, 
     }
   }
   IO.writeCommandTransaction(0x12); //display refresh
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   // update erase buffer
   for (_current_page = 0; _current_page < GxGDEW042T2_PAGES; _current_page++)
@@ -736,7 +735,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(uint32_t), uint16_t x, 
       _writeToWindow(x, ys, x, yds, w, yde - yds);
     }
   }
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   _current_page = -1;
 }
@@ -764,7 +763,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(const void*), uint16_t 
     }
   }
   IO.writeCommandTransaction(0x12); //display refresh
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   // update erase buffer
   for (_current_page = 0; _current_page < GxGDEW042T2_PAGES; _current_page++)
@@ -779,7 +778,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(const void*), uint16_t 
       _writeToWindow(x, ys, x, yds, w, yde - yds);
     }
   }
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   _current_page = -1;
 }
@@ -807,7 +806,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(const void*, const void
     }
   }
   IO.writeCommandTransaction(0x12); //display refresh
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   // update erase buffer
   for (_current_page = 0; _current_page < GxGDEW042T2_PAGES; _current_page++)
@@ -822,7 +821,7 @@ void GxGDEW042T2::drawPagedToWindow(void (*drawCallback)(const void*, const void
       _writeToWindow(x, ys, x, yds, w, yde - yds);
     }
   }
-  delay(2);
+  vTaskDelay(2);
   _waitWhileBusy("updateToWindow");
   _current_page = -1;
 }

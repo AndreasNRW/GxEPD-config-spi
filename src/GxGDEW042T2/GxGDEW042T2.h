@@ -14,7 +14,9 @@
 #ifndef _GxGDEW042T2_H_
 #define _GxGDEW042T2_H_
 
-#include "../GxEPD.h"
+#include "GxEPD.h"
+//#include <avr\pgmspace.h>
+#include <stdint.h>
 
 #define GxGDEW042T2_WIDTH 400
 #define GxGDEW042T2_HEIGHT 300
