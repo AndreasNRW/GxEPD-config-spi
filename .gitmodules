@@ -1,3 +1,0 @@
-[submodule "components/Adafruit-GFX"]
-	path = components/Adafruit-GFX
-	url = https://github.com/martinberlin/Adafruit-GFX-Library-ESP-IDF.git
