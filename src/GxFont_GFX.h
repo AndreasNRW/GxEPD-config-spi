@@ -27,9 +27,9 @@
 
 #ifndef _GxFont_GFX_H_
 #define _GxFont_GFX_H_
+#include <cstddef>
 
 #include <Adafruit_GFX.h>
-
 // select the library/libraries to add, none to preserve code space
 //#include <U8g2_for_Adafruit_GFX.h>
 //#include <Adafruit_ftGFX.h>

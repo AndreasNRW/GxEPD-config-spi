@@ -55,7 +55,7 @@ void GxIO_SPI::init()
   //_spi.begin();
   // Configure this using Platformio build_flags = 
   //                                      -D*_GPIO=PIN
-  SPI.begin(CLK_GPIO,MISO,MOSI_GPIO,CS_GPIO);
+  SPI.begin(CONFIG_EINK_SPI_CLK,MISO,CONFIG_EINK_SPI_MOSI,CONFIG_EINK_SPI_CS);
 }
 
 void GxIO_SPI::setFrequency(uint32_t freq)
